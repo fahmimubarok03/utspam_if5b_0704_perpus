@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:utspam_if5b_0704_perpus/pages/book_list_page.dart';
 import 'login_page.dart';
-import 'book_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -28,7 +28,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> logout() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Hapus session
+    await prefs.clear();
 
     Navigator.pushReplacement(
       context,
@@ -48,10 +48,12 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: Informasi pengguna
             Text(
               "Halo, $userName 👋",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
             const SizedBox(height: 20),
@@ -61,16 +63,16 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
 
-            // Menu Navigasi (sementara tombol saja)
-            _menuButton(
-              "Daftar Buku",
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const BookListPage()),
-                );
-              },
-            ),
+            /// 👉 Sekarang bisa diklik
+            _menuButton("Daftar Buku", onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const BookListPage(),
+                ),
+              );
+            }),
+
             _menuButton("Tambah Pinjam Buku"),
             _menuButton("Riwayat Pinjam Buku"),
             _menuButton("Profil Pengguna"),
@@ -78,7 +80,9 @@ class _HomePageState extends State<HomePage> {
             const Spacer(),
 
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
               onPressed: logout,
               child: const Text("Logout"),
             ),

@@ -20,14 +20,14 @@ List<Book> bookList = [
     title: "Harry Potter and the Philosopher’s Stone",
     genre: "Fantasy",
     price: 10000,
-    cover: "assets/hp1.jpg",
+    cover: "assets/images/cover1.png",
     synopsis: "Seorang anak yatim piatu mengetahui dirinya adalah seorang penyihir.",
   ),
   Book(
     title: "Laskar Pelangi",
     genre: "Drama",
     price: 8000,
-    cover: "assets/laskar_pelangi.jpg",
+    cover: "assets/images/cover2.png",
     synopsis: "Perjalanan anak-anak Belitong dalam meraih impian melalui pendidikan.",
   ),
 ];
