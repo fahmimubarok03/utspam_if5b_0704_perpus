@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
+import 'book_list_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -50,10 +51,7 @@ class _HomePageState extends State<HomePage> {
             // Header: Informasi pengguna
             Text(
               "Halo, $userName 👋",
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -64,7 +62,15 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 10),
 
             // Menu Navigasi (sementara tombol saja)
-            _menuButton("Daftar Buku"),
+            _menuButton(
+              "Daftar Buku",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BookListPage()),
+                );
+              },
+            ),
             _menuButton("Tambah Pinjam Buku"),
             _menuButton("Riwayat Pinjam Buku"),
             _menuButton("Profil Pengguna"),
@@ -72,9 +78,7 @@ class _HomePageState extends State<HomePage> {
             const Spacer(),
 
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: logout,
               child: const Text("Logout"),
             ),
@@ -84,17 +88,14 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _menuButton(String title) {
+  Widget _menuButton(String title, {VoidCallback? onTap}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: ElevatedButton(
-        onPressed: () {}, // nanti kita isi navigasinya
+        onPressed: onTap,
         child: SizedBox(
           width: double.infinity,
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-          ),
+          child: Text(title, textAlign: TextAlign.center),
         ),
       ),
     );
