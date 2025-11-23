@@ -17,32 +17,44 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: _createDB,
-    );
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        nik TEXT UNIQUE,
-        email TEXT UNIQUE,
-        address TEXT,
-        phone TEXT,
-        username TEXT UNIQUE,
-        password TEXT
-      )
-    ''');
+    CREATE TABLE users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT,
+      nik TEXT UNIQUE,
+      email TEXT UNIQUE,
+      address TEXT,
+      phone TEXT,
+      username TEXT UNIQUE,
+      password TEXT
+    );
+  ''');
+
+    await db.execute('''
+    CREATE TABLE borrow (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_name TEXT,
+      book_title TEXT,
+      borrow_date TEXT,
+      days INTEGER,
+      total_cost INTEGER
+    );
+  ''');
   }
 
   // Insert user ke database
   Future<int> insertUser(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert('users', row);
+  }
+
+  Future<int> insertBorrow(Map<String, dynamic> row) async {
+    final db = await instance.database;
+    return await db.insert('borrow', row);
   }
 
   // Ambil semua user
