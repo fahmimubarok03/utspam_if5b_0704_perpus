@@ -30,25 +30,24 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   String? validateNik(String? value) {
-  if (value == null || value.isEmpty) {
-    return "NIK wajib diisi!";
+    if (value == null || value.isEmpty) {
+      return "NIK wajib diisi!";
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return "NIK harus angka";
+    }
+    return null;
   }
-  if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-    return "NIK harus angka";
-  }
-  return null;
-}
 
-String? validatePhone(String? value) {
-  if (value == null || value.isEmpty) {
-    return "Nomor Telepon wajib diisi!";
+  String? validatePhone(String? value) {
+    if (value == null || value.isEmpty) {
+      return "Nomor Telepon wajib diisi!";
+    }
+    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return "Nomor Telepon harus angka";
+    }
+    return null;
   }
-  if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-    return "Nomor Telepon harus angka";
-  }
-  return null;
-}
-
 
   String? validatePassword(String? value) {
     if (value!.length < 6) {
@@ -88,8 +87,9 @@ String? validatePhone(String? value) {
       'password': passwordCtrl.text,
     });
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Registrasi Berhasil!")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Registrasi Berhasil!")));
 
     Navigator.pushReplacement(
       context,
@@ -112,15 +112,21 @@ String? validatePhone(String? value) {
                 _inputField(nikCtrl, "NIK", validator: validateNik),
                 _inputField(emailCtrl, "Email", validator: validateEmail),
                 _inputField(addressCtrl, "Alamat"),
-                _inputField(phoneCtrl, "Nomor Telepon", validator: validatePhone),
+                _inputField(
+                  phoneCtrl,
+                  "Nomor Telepon",
+                  validator: validatePhone,
+                ),
                 _inputField(usernameCtrl, "Username"),
                 _passwordField(),
 
                 if (errorMessage.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(errorMessage,
-                        style: TextStyle(color: Colors.red, fontSize: 14)),
+                    child: Text(
+                      errorMessage,
+                      style: TextStyle(color: Colors.red, fontSize: 14),
+                    ),
                   ),
 
                 ElevatedButton(
@@ -132,6 +138,16 @@ String? validatePhone(String? value) {
                   },
                   child: Text("Daftar"),
                 ),
+
+                TextButton(
+                  child: const Text("Sudah punya akun? Login"),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const LoginPage()),
+                    );
+                  },
+                ),
               ],
             ),
           ),
@@ -140,8 +156,11 @@ String? validatePhone(String? value) {
     );
   }
 
-  Widget _inputField(TextEditingController controller, String label,
-      {String? Function(String?)? validator}) {
+  Widget _inputField(
+    TextEditingController controller,
+    String label, {
+    String? Function(String?)? validator,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
