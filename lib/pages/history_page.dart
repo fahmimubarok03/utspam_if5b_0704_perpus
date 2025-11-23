@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../database/database_helper.dart';
+import 'history_detail_page.dart';
 
 class HistoryPage extends StatefulWidget {
   const HistoryPage({super.key});
@@ -39,14 +40,21 @@ class _HistoryPageState extends State<HistoryPage> {
               itemCount: borrowList.length,
               itemBuilder: (context, index) {
                 final item = borrowList[index];
+
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
+                    leading: Image.asset(item['cover'], width: 55, height: 80),
                     title: Text(item['book_title']),
-                    subtitle: Text(
-                        "Tanggal Pinjam: ${item['borrow_date'].substring(0, 10)}\n"
-                        "Lama Pinjam: ${item['days']} hari\n"
-                        "Biaya Total: Rp ${item['total_cost']}"),
+                    subtitle: Text("Biaya: Rp ${item['total_cost']}"),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) =>
+                              HistoryDetailPage(borrowData: item),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

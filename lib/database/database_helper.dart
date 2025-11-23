@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 2, // IMPORTANT: update version
+      version: 3, // HARUS UPDATE!!
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -50,6 +50,7 @@ class DatabaseHelper {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_name TEXT,
         book_title TEXT,
+        cover TEXT,
         borrow_date TEXT,
         days INTEGER,
         total_cost INTEGER
@@ -57,21 +58,25 @@ class DatabaseHelper {
     ''');
   }
 
+  // Insert user baru
   Future<int> insertUser(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert('users', row);
   }
 
+  // Insert peminjaman buku
   Future<int> insertBorrow(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert('borrow', row);
   }
 
+  // Ambil semua user untuk login & validasi
   Future<List<Map<String, dynamic>>> getUsers() async {
     final db = await instance.database;
     return await db.query('users');
   }
 
+  // Ambil riwayat peminjaman berdasarkan user login
   Future<List<Map<String, dynamic>>> getBorrowByUser(String userName) async {
     final db = await instance.database;
     return await db.query(

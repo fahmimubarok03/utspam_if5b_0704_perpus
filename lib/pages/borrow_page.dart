@@ -45,23 +45,24 @@ class _BorrowPageState extends State<BorrowPage> {
     if (daysCtrl.text.isEmpty ||
         int.tryParse(daysCtrl.text) == null ||
         int.parse(daysCtrl.text) <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Lama pinjam harus angka > 0")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Lama pinjam harus angka > 0")));
       return;
     }
 
     await DatabaseHelper.instance.insertBorrow({
       'user_name': userName,
       'book_title': widget.book.title,
+      'cover': widget.book.cover, // WAJIB TAMBAH INI
       'borrow_date': borrowDate.toString(),
       'days': int.parse(daysCtrl.text),
       'total_cost': totalCost,
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Peminjaman Berhasil!")),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Peminjaman Berhasil!")));
 
     Navigator.pushReplacement(
       context,
@@ -82,8 +83,10 @@ class _BorrowPageState extends State<BorrowPage> {
               child: Image.asset(widget.book.cover, width: 120, height: 160),
             ),
             SizedBox(height: 12),
-            Text(widget.book.title,
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(
+              widget.book.title,
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
             Text(widget.book.genre),
             SizedBox(height: 12),
             Text("Nama Peminjam: $userName"),
@@ -102,18 +105,21 @@ class _BorrowPageState extends State<BorrowPage> {
             ),
 
             SizedBox(height: 12),
-            Text("Total Biaya: Rp $totalCost",
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue)),
+            Text(
+              "Total Biaya: Rp $totalCost",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue,
+              ),
+            ),
 
             Spacer(),
 
             ElevatedButton(
               onPressed: saveBorrow,
               child: Text("Konfirmasi Pinjam"),
-            )
+            ),
           ],
         ),
       ),
