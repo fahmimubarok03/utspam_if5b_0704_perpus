@@ -33,22 +33,21 @@ class _BorrowPageState extends State<BorrowPage> {
   }
 
   void calculateCost() {
-    if (daysCtrl.text.isNotEmpty) {
+    setState(() {
       int days = int.tryParse(daysCtrl.text) ?? 0;
-      if (days > 0) {
-        setState(() {
-          totalCost = days * widget.book.price;
-        });
-      }
-    }
+      totalCost = (days > 0) ? days * widget.book.price : 0;
+    });
   }
 
   Future<void> saveBorrow() async {
+    print("TOMBOL DI TEKAN"); // Debug Tracking
+
     if (daysCtrl.text.isEmpty ||
         int.tryParse(daysCtrl.text) == null ||
         int.parse(daysCtrl.text) <= 0) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("Lama pinjam harus angka > 0")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Lama pinjam harus angka > 0")),
+      );
       return;
     }
 
@@ -60,8 +59,9 @@ class _BorrowPageState extends State<BorrowPage> {
       'total_cost': totalCost,
     });
 
-    ScaffoldMessenger.of(context)
-        .showSnackBar(SnackBar(content: Text("Peminjaman Berhasil!")));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Peminjaman Berhasil!")),
+    );
 
     Navigator.pushReplacement(
       context,
