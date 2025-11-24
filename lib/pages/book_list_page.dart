@@ -14,59 +14,20 @@ class BookListPage extends StatelessWidget {
         itemCount: bookList.length,
         itemBuilder: (context, index) {
           final book = bookList[index];
-
           return Card(
+            elevation: 3,
             margin: const EdgeInsets.only(bottom: 12),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Image.asset(
-                        book.cover,
-                        width: 80,
-                        height: 100,
-                        fit: BoxFit.cover,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(book.title,
-                                style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold)),
-                            Text(book.genre),
-                            Text("Harga Pinjam: Rp ${book.price}"),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    book.synopsis,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => BorrowPage(book: book),
-                          ),
-                        );
-                      },
-                      child: const Text("Pinjam"),
-                    ),
-                  ),
-                ],
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: ListTile(
+              leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.asset(book.cover, width: 50, height: 70, fit: BoxFit.cover)),
+              title: Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+              subtitle: Text("${book.genre}\nRp ${book.price}/hari", maxLines: 2),
+              isThreeLine: true,
+              trailing: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => BorrowPage(book: book)));
+                },
+                child: const Text("Pinjam"),
               ),
             ),
           );

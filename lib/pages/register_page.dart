@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../database/database_helper.dart';
 import 'login_page.dart';
-import '/database/database_helper.dart';
 
 class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
-
   final nameCtrl = TextEditingController();
   final nikCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
@@ -21,63 +22,42 @@ class _RegisterPageState extends State<RegisterPage> {
   bool _showPassword = false;
   String errorMessage = "";
 
-  // ------- VALIDASI FORM -------
   String? validateEmail(String? value) {
-    if (!value!.contains("@gmail.com")) {
+    if (value == null || !value.contains("@gmail.com")) {
       return "Gunakan email @gmail.com";
     }
     return null;
   }
 
-  String? validateNik(String? value) {
-    if (value == null || value.isEmpty) {
-      return "NIK wajib diisi!";
-    }
-    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-      return "NIK harus angka";
-    }
-    return null;
-  }
-
-  String? validatePhone(String? value) {
-    if (value == null || value.isEmpty) {
-      return "Nomor Telepon wajib diisi!";
-    }
-    if (!RegExp(r'^[0-9]+$').hasMatch(value)) {
-      return "Nomor Telepon harus angka";
+  String? validateNumber(String? value) {
+    if (value == null || value.isEmpty || int.tryParse(value) == null) {
+      return "Harus berupa angka";
     }
     return null;
   }
 
   String? validatePassword(String? value) {
-    if (value!.length < 6) {
+    if (value == null || value.length < 6) {
       return "Minimal 6 karakter";
     }
     return null;
   }
 
-  // ------- SIMPAN USER KE SQLITE -------
   Future<void> registerUser() async {
-    final db = DatabaseHelper.instance;
+    setState(() => errorMessage = "");
+    if (!_formKey.currentState!.validate()) return;
 
-    final users = await db.getUsers();
-
-    for (var u in users) {
-      if (u['email'] == emailCtrl.text) {
-        setState(() => errorMessage = "Email sudah digunakan!");
-        return;
-      }
-      if (u['username'] == usernameCtrl.text) {
-        setState(() => errorMessage = "Username sudah digunakan!");
-        return;
-      }
-      if (u['nik'] == nikCtrl.text) {
-        setState(() => errorMessage = "NIK sudah digunakan!");
-        return;
-      }
+    final db = await DatabaseHelper.instance.database;
+    // cek duplikasi email/username/nik
+    final existing = await db.query('users',
+        where: 'email = ? OR username = ? OR nik = ?',
+        whereArgs: [emailCtrl.text, usernameCtrl.text, nikCtrl.text]);
+    if (existing.isNotEmpty) {
+      setState(() => errorMessage = "Email / Username / NIK sudah digunakan!");
+      return;
     }
 
-    await db.insertUser({
+    await DatabaseHelper.instance.insertUser({
       'name': nameCtrl.text,
       'nik': nikCtrl.text,
       'email': emailCtrl.text,
@@ -87,94 +67,46 @@ class _RegisterPageState extends State<RegisterPage> {
       'password': passwordCtrl.text,
     });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Registrasi Berhasil!")));
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => LoginPage()),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Registrasi Berhasil!")));
+    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginPage()));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Registrasi Pengguna")),
-      body: Padding(
-        padding: EdgeInsets.all(16),
+      appBar: AppBar(title: const Text("Registrasi Pengguna")),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                _inputField(nameCtrl, "Nama Lengkap"),
-                _inputField(nikCtrl, "NIK", validator: validateNik),
-                _inputField(emailCtrl, "Email", validator: validateEmail),
-                _inputField(addressCtrl, "Alamat"),
-                _inputField(
-                  phoneCtrl,
-                  "Nomor Telepon",
-                  validator: validatePhone,
-                ),
-                _inputField(usernameCtrl, "Username"),
-                _passwordField(),
-
-                if (errorMessage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      errorMessage,
-                      style: TextStyle(color: Colors.red, fontSize: 14),
-                    ),
-                  ),
-
-                ElevatedButton(
-                  onPressed: () {
-                    setState(() => errorMessage = "");
-                    if (_formKey.currentState!.validate()) {
-                      registerUser();
-                    }
-                  },
-                  child: Text("Daftar"),
-                ),
-
-                TextButton(
-                  child: const Text("Sudah punya akun? Login"),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginPage()),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+          child: Column(children: [
+            _inputField(nameCtrl, "Nama Lengkap"),
+            _inputField(nikCtrl, "NIK", validator: validateNumber),
+            _inputField(emailCtrl, "Email", validator: validateEmail),
+            _inputField(addressCtrl, "Alamat"),
+            _inputField(phoneCtrl, "Nomor Telepon", validator: validateNumber),
+            _inputField(usernameCtrl, "Username"),
+            _passwordField(),
+            if (errorMessage.isNotEmpty)
+              Padding(padding: const EdgeInsets.only(bottom: 8), child: Text(errorMessage, style: const TextStyle(color: Colors.red))),
+            ElevatedButton(onPressed: registerUser, child: const Text("Daftar")),
+          ]),
         ),
       ),
     );
   }
 
-  Widget _inputField(
-    TextEditingController controller,
-    String label, {
-    String? Function(String?)? validator,
-  }) {
+  Widget _inputField(TextEditingController controller, String label, {String? Function(String?)? validator}) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: TextFormField(
         controller: controller,
         validator: (value) {
-          if (value!.isEmpty) return "Tidak boleh kosong";
+          if (value == null || value.isEmpty) return "Tidak boleh kosong";
           if (validator != null) return validator(value);
           return null;
         },
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
-          errorStyle: TextStyle(color: Colors.red),
-        ),
+        decoration: InputDecoration(labelText: label, border: const OutlineInputBorder(), errorStyle: const TextStyle(color: Colors.red)),
       ),
     );
   }
@@ -188,13 +120,11 @@ class _RegisterPageState extends State<RegisterPage> {
         obscureText: !_showPassword,
         decoration: InputDecoration(
           labelText: "Password",
-          border: OutlineInputBorder(),
-          errorStyle: TextStyle(color: Colors.red),
+          border: const OutlineInputBorder(),
+          errorStyle: const TextStyle(color: Colors.red),
           suffixIcon: IconButton(
             icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
-            onPressed: () {
-              setState(() => _showPassword = !_showPassword);
-            },
+            onPressed: () => setState(() => _showPassword = !_showPassword),
           ),
         ),
       ),

@@ -21,26 +21,35 @@ class _HistoryPageState extends State<HistoryPage> {
   }
 
   Future<void> loadData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final prefs = await SharedPreferences.getInstance();
     userName = prefs.getString("name") ?? "";
-
     final data = await DatabaseHelper.instance.getBorrowByUser(userName);
-
-    setState(() {
-      borrowList = data;
-    });
+    setState(() => borrowList = data.reversed.toList());
   }
 
-  void _openDetail(Map<String, dynamic> borrowData) async {
+  Future<void> openDetail(Map<String, dynamic> item) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => HistoryDetailPage(data: borrowData),
+        builder: (_) => HistoryDetailPage(data: item),
       ),
     );
 
     if (result == true) {
-      loadData(); // REFRESH setelah batal/edit
+      await loadData();
+    }
+  }
+
+  Color statusColor(String status) {
+    switch (status) {
+      case "Aktif":
+        return Colors.green;
+      case "Dibatalkan":
+        return Colors.red;
+      case "Selesai":
+        return Colors.grey;
+      default:
+        return Colors.blue;
     }
   }
 
@@ -49,24 +58,41 @@ class _HistoryPageState extends State<HistoryPage> {
     return Scaffold(
       appBar: AppBar(title: const Text("Riwayat Peminjaman")),
       body: borrowList.isEmpty
-          ? const Center(child: Text("Belum ada riwayat peminjaman."))
+          ? const Center(
+              child: Text(
+                "Belum ada riwayat peminjaman.",
+                style: TextStyle(fontSize: 16),
+              ),
+            )
           : ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: borrowList.length,
-              itemBuilder: (context, index) {
-                var data = borrowList[index];
+              itemBuilder: (context, i) {
+                final item = borrowList[i];
                 return Card(
+                  elevation: 3,
+                  margin: const EdgeInsets.only(bottom: 10),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                   child: ListTile(
-                    leading: Image.asset(
-                      data['cover'],
-                      width: 50,
-                      height: 70,
-                      fit: BoxFit.cover,
+                    leading: ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: Image.asset(
+                        item['cover'],
+                        width: 50,
+                        height: 70,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    title: Text(data['book_title']),
-                    subtitle: Text("Status: ${data['status']}"),
-                    trailing: const Icon(Icons.arrow_forward_ios),
-                    onTap: () => _openDetail(data), // FIXED!
+                    title: Text(item['book_title']),
+                    subtitle: Text(
+                      "Rp ${item['total_cost']} - ${item['status']}",
+                      style: TextStyle(
+                        color: statusColor(item['status']),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () => openDetail(item),
                   ),
                 );
               },
