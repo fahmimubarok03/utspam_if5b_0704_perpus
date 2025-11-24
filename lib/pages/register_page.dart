@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../database/database_helper.dart';
 import 'login_page.dart';
 
@@ -48,7 +47,6 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final db = await DatabaseHelper.instance.database;
-    // cek duplikasi email/username/nik
     final existing = await db.query('users',
         where: 'email = ? OR username = ? OR nik = ?',
         whereArgs: [emailCtrl.text, usernameCtrl.text, nikCtrl.text]);
