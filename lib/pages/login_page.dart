@@ -37,6 +37,11 @@ class _LoginPageState extends State<LoginPage> {
     if (result.isNotEmpty) {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString('name', result[0]['name'].toString());
+      await prefs.setString('email', result[0]['email'].toString());
+      await prefs.setString('nik', result[0]['nik'].toString());
+      await prefs.setString('address', result[0]['address'].toString());
+      await prefs.setString('phone', result[0]['phone'].toString());
+      await prefs.setString('username', result[0]['username'].toString());
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const HomePage()),
@@ -52,45 +57,53 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(title: const Text("Login Pengguna")),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
-        child: Column(children: [
-          const SizedBox(height: 24),
-          TextFormField(
-            controller: loginCtrl,
-            decoration: const InputDecoration(
-              labelText: "Email atau NIK",
-              border: OutlineInputBorder(),
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextFormField(
-            controller: passCtrl,
-            obscureText: !_showPassword,
-            decoration: InputDecoration(
-              labelText: "Password",
-              border: const OutlineInputBorder(),
-              suffixIcon: IconButton(
-                icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
-                onPressed: () => setState(() => _showPassword = !_showPassword),
+        child: Column(
+          children: [
+            const SizedBox(height: 24),
+            TextFormField(
+              controller: loginCtrl,
+              decoration: const InputDecoration(
+                labelText: "Email atau NIK",
+                border: OutlineInputBorder(),
               ),
             ),
-          ),
-          if (errorMessage.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(top: 8),
-              child: Text(errorMessage, style: const TextStyle(color: Colors.red)),
+            const SizedBox(height: 12),
+            TextFormField(
+              controller: passCtrl,
+              obscureText: !_showPassword,
+              decoration: InputDecoration(
+                labelText: "Password",
+                border: const OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _showPassword ? Icons.visibility_off : Icons.visibility,
+                  ),
+                  onPressed: () =>
+                      setState(() => _showPassword = !_showPassword),
+                ),
+              ),
             ),
-          const SizedBox(height: 16),
-          ElevatedButton(onPressed: loginUser, child: const Text("Login")),
-          TextButton(
-            child: const Text("Belum punya akun? Registrasi"),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => RegisterPage()),
-              );
-            },
-          ),
-        ]),
+            if (errorMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  errorMessage,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              ),
+            const SizedBox(height: 16),
+            ElevatedButton(onPressed: loginUser, child: const Text("Login")),
+            TextButton(
+              child: const Text("Belum punya akun? Registrasi"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => RegisterPage()),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

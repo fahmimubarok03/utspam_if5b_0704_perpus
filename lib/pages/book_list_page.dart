@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/book_model.dart';
+import '../models/book_model.dart'; // ← WAJIB ADA
 import 'borrow_page.dart';
 
 class BookListPage extends StatelessWidget {
@@ -10,25 +10,30 @@ class BookListPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text("Daftar Buku")),
       body: ListView.builder(
-        padding: const EdgeInsets.all(12),
-        itemCount: bookList.length,
+        itemCount: bookList.length, // ← buku dummy dari model
         itemBuilder: (context, index) {
           final book = bookList[index];
+
           return Card(
-            elevation: 3,
-            margin: const EdgeInsets.only(bottom: 12),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: ListTile(
-              leading: ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.asset(book.cover, width: 50, height: 70, fit: BoxFit.cover)),
-              title: Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis),
-              subtitle: Text("${book.genre}\nRp ${book.price}/hari", maxLines: 2),
-              isThreeLine: true,
-              trailing: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => BorrowPage(book: book)));
-                },
-                child: const Text("Pinjam"),
+              leading: Image.asset(
+                book.cover,
+                width: 50,
+                height: 70,
+                fit: BoxFit.cover,
               ),
+              title: Text(book.title),
+              subtitle: Text(book.genre),
+              trailing: Text("Rp ${book.price}/hari"),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BorrowPage(book: book),
+                  ),
+                );
+              },
             ),
           );
         },
