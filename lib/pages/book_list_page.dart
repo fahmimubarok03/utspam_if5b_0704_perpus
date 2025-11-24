@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '/models/book_model.dart';
+import '../models/book_model.dart';
 import 'borrow_page.dart';
 
 class BookListPage extends StatelessWidget {
