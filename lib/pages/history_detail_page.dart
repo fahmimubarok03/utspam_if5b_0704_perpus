@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../database/database_helper.dart';
+import '/database/database_helper.dart';
 import 'edit_borrow_page.dart';
 
 class HistoryDetailPage extends StatefulWidget {

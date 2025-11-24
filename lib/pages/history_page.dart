@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../database/database_helper.dart';
+import '/database/database_helper.dart';
 import 'history_detail_page.dart';
 
 class HistoryPage extends StatefulWidget {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/book_model.dart';
-import '../database/database_helper.dart';
+import '/models/book_model.dart';
+import '/database/database_helper.dart';
 import 'history_page.dart';
 
 class BorrowPage extends StatefulWidget {
