@@ -64,9 +64,11 @@ class _BorrowPageState extends State<BorrowPage> {
       await DatabaseHelper.instance.insertBorrow({
         'user_name': userName,
         'book_title': widget.book.title,
-        'borrow_date': borrowDate.toString().substring(0, 10),
+        'cover': widget.book.cover, // TAMBAHKAN INI!!
+        'borrow_date': borrowDate.toString(),
         'days': int.parse(daysCtrl.text),
         'total_cost': totalCost,
+        'status': 'Aktif', // WAJIB default status
       });
 
       print("DEBUG: Data berhasil masuk DB");

@@ -12,90 +12,94 @@ class HistoryDetailPage extends StatefulWidget {
 }
 
 class _HistoryDetailPageState extends State<HistoryDetailPage> {
-  late Map<String, dynamic> data;
+  late Map<String, dynamic> borrowData;
 
   @override
   void initState() {
     super.initState();
-    data = widget.data;
+    borrowData = widget.data;
+  }
+
+  Future<void> refreshData() async {
+    final list = await DatabaseHelper.instance
+        .getBorrowByUser(borrowData['user_name']);
+
+    setState(() {
+      borrowData = list.firstWhere(
+        (item) => item['id'] == borrowData['id'],
+        orElse: () => borrowData,
+      );
+    });
   }
 
   Future<void> cancelBorrow() async {
     await DatabaseHelper.instance
-        .updateBorrowStatus(data['id'], "Dibatalkan");
+        .updateBorrowStatus(borrowData['id'], "Dibatalkan");
 
-    setState(() {
-      data['status'] = "Dibatalkan";
-    });
+    await refreshData();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Peminjaman dibatalkan")),
+    ScaffoldMessenger.of(context)
+        .showSnackBar(const SnackBar(content: Text("Peminjaman dibatalkan")));
+  }
+
+  Future<void> editBorrow() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditBorrowPage(data: borrowData),
+      ),
     );
 
-    Navigator.pop(context, true); // Kembali & refresh riwayat
+    if (result == true) {
+      await refreshData();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Peminjaman diperbarui")));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool isActive = data['status'] == "Aktif";
-
     return Scaffold(
       appBar: AppBar(title: const Text("Detail Peminjaman")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Center(
-              child: Image.asset(data['cover'], width: 120, height: 160),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              data['book_title'],
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            Text("Nama: ${data['user_name']}"),
-            Text("Tanggal Pinjam: ${data['borrow_date'].substring(0, 10)}"),
-            Text("Lama Pinjam: ${data['days']} hari"),
-            Text("Total: Rp ${data['total_cost']}"),
-            Text(
-              "Status: ${data['status']}",
-              style: TextStyle(
-                color: data['status'] == "Dibatalkan" ? Colors.red : Colors.green,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            Image.asset(borrowData['cover'],
+                width: 120, height: 160, fit: BoxFit.cover),
+            const SizedBox(height: 12),
+            Text(borrowData['book_title'],
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text("Nama: ${borrowData['user_name']}"),
+            Text("Mulai: ${borrowData['borrow_date']}"),
+            Text("Durasi: ${borrowData['days']} hari"),
+            Text("Total: Rp ${borrowData['total_cost']}"),
+            Text("Status: ${borrowData['status']}"),
+
             const Spacer(),
 
-            // Tombol Edit hanya jika status masih aktif
-            if (isActive)
+            if (borrowData['status'] == "Aktif")
               ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => EditBorrowPage(data: data),
-                    ),
-                  );
-                },
+                onPressed: editBorrow,
                 child: const Text("Edit Peminjaman"),
               ),
 
-            const SizedBox(height: 10),
+            const SizedBox(height: 8),
 
-            // Tombol Cancel hanya jika status masih aktif
-            if (isActive)
+            if (borrowData['status'] == "Aktif")
               ElevatedButton(
                 style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                 onPressed: cancelBorrow,
                 child: const Text("Batalkan Peminjaman"),
               ),
 
-            const SizedBox(height: 10),
-            OutlinedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text("Kembali"),
-            )
+            const SizedBox(height: 8),
+
+            ElevatedButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text("Kembali ke Riwayat"),
+            ),
           ],
         ),
       ),
