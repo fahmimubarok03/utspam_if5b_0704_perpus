@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../database/database_helper.dart';
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -11,29 +10,33 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  Map<String, dynamic>? userData;
+  String name = "";
+  String email = "";
+  String nik = "";
+  String phone = "";
+  String address = "";
 
   @override
   void initState() {
     super.initState();
-    loadUserData();
+    loadProfile();
   }
 
-  Future<void> loadUserData() async {
+  Future<void> loadProfile() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? name = prefs.getString('name');
 
-    if (name != null) {
-      final users = await DatabaseHelper.instance.getUsers();
-      setState(() {
-        userData = users.firstWhere((user) => user['name'] == name);
-      });
-    }
+    setState(() {
+      name = prefs.getString("name") ?? "-";
+      email = prefs.getString("email") ?? "-";
+      nik = prefs.getString("nik") ?? "-";
+      phone = prefs.getString("phone") ?? "-";
+      address = prefs.getString("address") ?? "-";
+    });
   }
 
-  Future<void> logout() async {
+  Future<void> logout(BuildContext context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.clear(); // Hapus session
+    await prefs.clear();
 
     Navigator.pushAndRemoveUntil(
       context,
@@ -42,37 +45,57 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget buildInfoTile(String title, String value) {
+    return ListTile(
+      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+      subtitle: Text(value),
+      tileColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      minVerticalPadding: 10,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Profil Pengguna")),
-      body: userData == null
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("Nama: ${userData!['name']}",
-                      style: const TextStyle(
-                          fontSize: 20, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Text("NIK: ${userData!['nik']}"),
-                  Text("Email: ${userData!['email']}"),
-                  Text("Alamat: ${userData!['address']}"),
-                  Text("No Telepon: ${userData!['phone']}"),
-                  Text("Username: ${userData!['username']}"),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: logout,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
-                    child: const Text("Logout"),
-                  )
-                ],
-              ),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            const CircleAvatar(
+              radius: 45,
+              backgroundColor: Colors.blue,
+              child: Icon(Icons.person, size: 55, color: Colors.white),
             ),
+            const SizedBox(height: 15),
+
+            buildInfoTile("Nama Lengkap", name),
+            const SizedBox(height: 8),
+            buildInfoTile("Email", email),
+            const SizedBox(height: 8),
+            buildInfoTile("NIK", nik),
+            const SizedBox(height: 8),
+            buildInfoTile("Nomor Telepon", phone),
+            const SizedBox(height: 8),
+            buildInfoTile("Alamat", address),
+
+            const Spacer(),
+
+            ElevatedButton(
+              onPressed: () => logout(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+              ),
+              child: const Text(
+                "Logout",
+                style: TextStyle(color: Colors.white),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
