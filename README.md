@@ -1,16 +1,8 @@
-# utspam_if5b_0704_perpus
+# APLIKASI PERPUSTAKAAN
+sebuah aplikasi mobile peminjaman buku di perpustakaan yang terdiri atas beberapa halaman terintegrasi dengan alur navigasi
+yang logis. Aplikasi ini dapat melakukan autentikasi pengguna, menampilkan daftar buku yang
+dapat dipinjam, melakukan proses peminjaman, menampilkan riwayat transaksi, serta mengelola detail
+transaksi yang sudah dilakukan.
+#Link Video Demo Aplikasi Perpustakaan
+https://drive.google.com/file/d/1e-Cqfk-1X1H07TBQfsRy9Ry4OixFBRVy/view?usp=sharing
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
