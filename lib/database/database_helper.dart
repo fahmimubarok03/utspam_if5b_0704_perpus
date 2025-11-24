@@ -9,7 +9,7 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    _database = await _initDB('library.db');
+    _database = await _initDB("library.db");
     return _database!;
   }
 
@@ -19,98 +19,70 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 10, // WAJIB UPDATE versi biar migrate DB
+      version: 5,
       onCreate: _createDB,
-      onUpgrade: _upgradeDB,
+      onUpgrade: (db, old, newV) async {
+        await db.execute("DROP TABLE IF EXISTS borrow");
+        await db.execute("DROP TABLE IF EXISTS users");
+        _createDB(db, newV);
+      },
     );
-  }
-
-  Future _upgradeDB(Database db, int oldVersion, int newVersion) async {
-    await db.execute("DROP TABLE IF EXISTS borrow");
-    await db.execute("DROP TABLE IF EXISTS users");
-    await _createDB(db, newVersion);
   }
 
   Future _createDB(Database db, int version) async {
-    await db.execute('''
+    await db.execute("""
       CREATE TABLE users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        nik TEXT UNIQUE NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        address TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        username TEXT UNIQUE NOT NULL,
-        password TEXT NOT NULL
+        name TEXT,
+        nik TEXT UNIQUE,
+        email TEXT UNIQUE,
+        address TEXT,
+        phone TEXT,
+        username TEXT UNIQUE,
+        password TEXT
       );
-    ''');
+    """);
 
-    await db.execute('''
+    await db.execute("""
       CREATE TABLE borrow (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_name TEXT NOT NULL,
-        book_title TEXT NOT NULL,
-        cover TEXT NOT NULL,
-        borrow_date TEXT NOT NULL,
-        days INTEGER NOT NULL,
-        total_cost INTEGER NOT NULL,
-        status TEXT NOT NULL
+        user_name TEXT,
+        book_title TEXT,
+        cover TEXT,
+        borrow_date TEXT,
+        days INTEGER,
+        total_cost INTEGER,
+        status TEXT
       );
-    ''');
+    """);
   }
 
-  // REGISTRASI
   Future<int> insertUser(Map<String, dynamic> row) async {
     final db = await instance.database;
-    return await db.insert('users', row);
+    return db.insert('users', row);
   }
 
-  // LOGIN CEK USER
-  Future<List<Map<String, dynamic>>> getUsers() async {
-    final db = await instance.database;
-    return await db.query('users');
-  }
-
-  // INSERT PEMINJAMAN
   Future<int> insertBorrow(Map<String, dynamic> row) async {
     final db = await instance.database;
-    return await db.insert('borrow', row);
+    return db.insert('borrow', row);
   }
 
-  // GET RIWAYAT SESUAI USER LOGIN
-  Future<List<Map<String, dynamic>>> getBorrowByUser(String userName) async {
-    final db = await instance.database;
-    return await db.query(
-      'borrow',
-      where: 'user_name = ?',
-      whereArgs: [userName],
-    );
-  }
-
-  // UPDATE STATUS PEMINJAMAN → BATAL / SELESAI
-  Future<int> updateBorrowStatus(int id, String newStatus) async {
-    final db = await instance.database;
-    return await db.update(
-      'borrow',
-      {'status': newStatus},
-      where: 'id = ?',
-      whereArgs: [id],
-    );
-  }
-
-  // EDIT PEMINJAMAN
   Future<int> updateBorrowData(int id, Map<String, dynamic> row) async {
     final db = await instance.database;
-    return await db.update(
-      'borrow',
-      row,
-      where: 'id = ?',
-      whereArgs: [id],
-    );
+    return db.update('borrow', row, where: 'id = ?', whereArgs: [id]);
   }
 
-  Future closeDB() async {
+  Future<int> updateBorrowStatus(int id, String status) async {
     final db = await instance.database;
-    db.close();
+    return db.update('borrow', {'status': status}, where: 'id=?', whereArgs: [id]);
+  }
+
+  Future<List<Map<String, dynamic>>> getBorrowByUser(String userName) async {
+    final db = await instance.database;
+    return db.query(
+      'borrow',
+      where: 'user_name=?',
+      whereArgs: [userName],
+    );
   }
 }
