@@ -40,7 +40,16 @@ class _BorrowPageState extends State<BorrowPage> {
   }
 
   Future<void> saveBorrow() async {
-    print("TOMBOL DI TEKAN"); // Debug Tracking
+    print("DEBUG: saveBorrow() terpanggil!");
+
+    if (userName.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Gagal: Nama peminjam tidak ditemukan! Login ulang."),
+        ),
+      );
+      return;
+    }
 
     if (daysCtrl.text.isEmpty ||
         int.tryParse(daysCtrl.text) == null ||
@@ -51,23 +60,31 @@ class _BorrowPageState extends State<BorrowPage> {
       return;
     }
 
-    await DatabaseHelper.instance.insertBorrow({
-      'user_name': userName,
-      'book_title': widget.book.title,
-      'cover': widget.book.cover, // WAJIB TAMBAH INI
-      'borrow_date': borrowDate.toString(),
-      'days': int.parse(daysCtrl.text),
-      'total_cost': totalCost,
-    });
+    try {
+      await DatabaseHelper.instance.insertBorrow({
+        'user_name': userName,
+        'book_title': widget.book.title,
+        'borrow_date': borrowDate.toString().substring(0, 10),
+        'days': int.parse(daysCtrl.text),
+        'total_cost': totalCost,
+      });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Peminjaman Berhasil!")));
+      print("DEBUG: Data berhasil masuk DB");
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => HistoryPage()),
-    );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Peminjaman Berhasil!")));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => HistoryPage()),
+      );
+    } catch (e) {
+      print("ERROR saat insert: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Terjadi kesalahan ketika menyimpan data")),
+      );
+    }
   }
 
   @override
@@ -117,7 +134,7 @@ class _BorrowPageState extends State<BorrowPage> {
             Spacer(),
 
             ElevatedButton(
-              onPressed: saveBorrow,
+              onPressed: () => saveBorrow(),
               child: Text("Konfirmasi Pinjam"),
             ),
           ],

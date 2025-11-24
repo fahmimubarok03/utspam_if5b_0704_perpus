@@ -19,7 +19,7 @@ class DatabaseHelper {
 
     return await openDatabase(
       path,
-      version: 3, // HARUS UPDATE!!
+      version: 4,
       onCreate: _createDB,
       onUpgrade: _upgradeDB,
     );
@@ -33,50 +33,40 @@ class DatabaseHelper {
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
-      CREATE TABLE users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT,
-        nik TEXT UNIQUE,
-        email TEXT UNIQUE,
-        address TEXT,
-        phone TEXT,
-        username TEXT UNIQUE,
-        password TEXT
-      );
+    CREATE TABLE users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      nik TEXT UNIQUE NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      address TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL
+    );
     ''');
 
     await db.execute('''
-      CREATE TABLE borrow (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        user_name TEXT,
-        book_title TEXT,
-        cover TEXT,
-        borrow_date TEXT,
-        days INTEGER,
-        total_cost INTEGER
-      );
+    CREATE TABLE borrow (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_name TEXT NOT NULL,
+      book_title TEXT NOT NULL,
+      borrow_date TEXT NOT NULL,
+      days INTEGER NOT NULL,
+      total_cost INTEGER NOT NULL
+    );
     ''');
   }
 
-  // Insert user baru
   Future<int> insertUser(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert('users', row);
   }
 
-  // Insert peminjaman buku
   Future<int> insertBorrow(Map<String, dynamic> row) async {
     final db = await instance.database;
     return await db.insert('borrow', row);
   }
 
-  // Ambil semua user untuk login & validasi
-  Future<List<Map<String, dynamic>>> getUsers() async {
-    final db = await instance.database;
-    return await db.query('users');
-  }
-
-  // Ambil riwayat peminjaman berdasarkan user login
   Future<List<Map<String, dynamic>>> getBorrowByUser(String userName) async {
     final db = await instance.database;
     return await db.query(
@@ -84,6 +74,12 @@ class DatabaseHelper {
       where: 'user_name = ?',
       whereArgs: [userName],
     );
+  }
+
+  // Ambil semua user untuk validasi registrasi
+  Future<List<Map<String, dynamic>>> getUsers() async {
+    final db = await instance.database;
+    return await db.query('users');
   }
 
   Future closeDB() async {
