@@ -20,32 +20,23 @@ class _EditBorrowPageState extends State<EditBorrowPage> {
   @override
   void initState() {
     super.initState();
-
-    borrowDate = DateTime.tryParse(widget.data['borrow_date']) ?? DateTime.now();
+    borrowDate = DateTime.parse(widget.data['borrow_date']);
     daysCtrl.text = widget.data['days'].toString();
-
-    /// Hitung harga per hari kembali dari total
     price = widget.data['total_cost'] ~/ widget.data['days'];
-
     calculateCost();
   }
 
-  /// Hitung total biaya real-time
   void calculateCost() {
     int days = int.tryParse(daysCtrl.text) ?? 0;
-    if (days > 0) {
-      setState(() => totalCost = days * price);
-    } else {
-      setState(() => totalCost = 0);
-    }
+    setState(() {
+      totalCost = (days > 0) ? days * price : 0;
+    });
   }
 
-  /// Update peminjaman ke database
   Future<void> updateBorrow() async {
     if (daysCtrl.text.isEmpty || int.tryParse(daysCtrl.text) == null || int.parse(daysCtrl.text) <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text("Lama pinjam harus angka > 0"),
-      ));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text("Lama pinjam tidak valid!")));
       return;
     }
 
@@ -53,14 +44,10 @@ class _EditBorrowPageState extends State<EditBorrowPage> {
       'borrow_date': DateFormat('yyyy-MM-dd').format(borrowDate!),
       'days': int.parse(daysCtrl.text),
       'total_cost': totalCost,
-      'status': widget.data['status'], // status TIDAK dipaksa berubah
+      'status': 'Aktif',
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text("Data peminjaman berhasil diperbarui!"),
-    ));
-
-    Navigator.pop(context, true); // untuk refresh halaman history
+    Navigator.pop(context, true); // ⬅️ mengirim signal update
   }
 
   @override
@@ -72,59 +59,54 @@ class _EditBorrowPageState extends State<EditBorrowPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.data['book_title'],
-                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+            Text(
+              widget.data['book_title'],
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 12),
 
             const Text("Tanggal Mulai:"),
             InkWell(
               onTap: () async {
-                final picking = await showDatePicker(
+                DateTime? pick = await showDatePicker(
                   context: context,
                   initialDate: borrowDate!,
                   firstDate: DateTime(2022),
                   lastDate: DateTime(2035),
                 );
-                if (picking != null) {
-                  setState(() => borrowDate = picking);
+                if (pick != null) {
+                  setState(() => borrowDate = pick);
                   calculateCost();
                 }
               },
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                 decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black26),
+                    border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(6)),
                 child: Text(DateFormat('yyyy-MM-dd').format(borrowDate!)),
               ),
             ),
-            const SizedBox(height: 12),
 
+            const SizedBox(height: 12),
             const Text("Lama Pinjam (hari):"),
             TextField(
               controller: daysCtrl,
               keyboardType: TextInputType.number,
+              decoration: const InputDecoration(border: OutlineInputBorder()),
               onChanged: (_) => calculateCost(),
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Masukkan lama peminjaman",
-              ),
             ),
+
             const SizedBox(height: 12),
+            Text(
+              "Total: Rp $totalCost",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue),
+            ),
 
-            Text("Total Biaya : Rp $totalCost",
-                style: const TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold, color: Colors.blue)),
             const Spacer(),
-
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: updateBorrow,
-                style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14)),
-                child: const Text("Simpan Perubahan"),
-              ),
+            ElevatedButton(
+              onPressed: updateBorrow,
+              child: const Text("Simpan Perubahan"),
             )
           ],
         ),
