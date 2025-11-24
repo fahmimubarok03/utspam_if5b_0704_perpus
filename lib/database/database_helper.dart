@@ -52,7 +52,8 @@ class DatabaseHelper {
       book_title TEXT NOT NULL,
       borrow_date TEXT NOT NULL,
       days INTEGER NOT NULL,
-      total_cost INTEGER NOT NULL
+      total_cost INTEGER NOT NULL,
+      status TEXT NOT NULL
     );
     ''');
   }
@@ -80,6 +81,17 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> getUsers() async {
     final db = await instance.database;
     return await db.query('users');
+  }
+
+  // Update status transaksi peminjaman
+  Future<int> updateBorrowStatus(int id, String status) async {
+    final db = await instance.database;
+    return await db.update(
+      'borrow',
+      {'status': status},
+      where: 'id = ?',
+      whereArgs: [id],
+    );
   }
 
   Future closeDB() async {
