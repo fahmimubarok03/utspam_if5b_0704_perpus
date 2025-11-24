@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:utspam_if5b_0704_perpus/pages/book_list_page.dart';
+import 'package:utspam_if5b_0704_perpus/pages/history_page.dart';
+import 'package:utspam_if5b_0704_perpus/pages/profile_page.dart';
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -30,9 +32,10 @@ class _HomePageState extends State<HomePage> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
 
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
     );
   }
 
@@ -50,10 +53,7 @@ class _HomePageState extends State<HomePage> {
           children: [
             Text(
               "Halo, $userName 👋",
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 20),
@@ -63,26 +63,50 @@ class _HomePageState extends State<HomePage> {
             ),
             const SizedBox(height: 10),
 
-            /// 👉 Sekarang bisa diklik
-            _menuButton("Daftar Buku", onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const BookListPage(),
-                ),
-              );
-            }),
+            _menuButton(
+              "Daftar Buku",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BookListPage()),
+                );
+              },
+            ),
 
-            _menuButton("Tambah Pinjam Buku"),
-            _menuButton("Riwayat Pinjam Buku"),
-            _menuButton("Profil Pengguna"),
+            _menuButton(
+              "Tambah Pinjam Buku",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BookListPage()),
+                );
+              },
+            ),
+
+            _menuButton(
+              "Riwayat Pinjam Buku",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const HistoryPage()),
+                );
+              },
+            ),
+
+            _menuButton(
+              "Profil Pengguna",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ProfilePage()),
+                );
+              },
+            ),
 
             const Spacer(),
 
             ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: logout,
               child: const Text("Logout"),
             ),
